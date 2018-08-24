@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ajax</title>
+</head>
+<body>
+    <form>
+        <input type="text" name="username" class="username">
+        <input type="text" name="age" class="age">
+        <input type="submit" class="subBtn">
+    </form>
+    <button class="getNews">getNews</button>
+    <ul class="newsWrapper">
+
+    </ul>
+    <script>
+        var userName = document.getElementsByClassName('username')[0],
+            age = document.getElementsByClassName('age')[0],
+            subBtn = document.getElementsByClassName('subBtn')[0],
+            newsWrapper = document.getElementsByClassName('newsWrapper')[0],
+            getNews = document.getElementsByClassName('getNews')[0];
+        subBtn.onclick = function(e) {
+            e.preventDefault();
+            ajaxFunc('post', './post.php', 'username=' + userName.value + '&' + 'age=' + age.value, postInfo, true)
+        }
+        getNews.onclick = function () {
+            ajaxFunc('get', './getNews.php', '', showNews, true)
+        }
+        
+        function showNews(data) {
+            var newsStr = '';
+            JSON.parse(data).forEach(function(ele, index) {
+                newsStr += '<li>' + ele.title + '[' + ele.date + ']</li>';
+            });
+            newsWrapper.innerHTML = newsStr;
+        }
+        function postInfo(data) {
+            console.log(data)
+            alert(data);
+        }
+        function ajaxFunc(method, url, data, callback, flag) {
+            var ajaxObj = null;
+            method = method.toUpperCase();
+            if(XMLHttpRequest) {
+                ajaxObj = new XMLHttpRequest();
+            }else {
+                ajaxObj = new ActiveXObject('Microsft.XMLHttp');
+            }
+            if(method === "GET") {
+                ajaxObj.open(method, url + '?' + data, true);
+                ajaxObj.send();
+            }else if(method === "POST") {
+                console.log(data)
+                ajaxObj.open(method, url, true);
+                ajaxObj.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                ajaxObj.send(data);
+            }
+            ajaxObj.onreadystatechange = function() {
+                if(ajaxObj.readyState === 4) {
+                    if(ajaxObj.status === 200) {
+                        callback(ajaxObj.responseText);
+                    }else {
+                        alert('status--ERROR');
+                    }
+                }
+            } 
+        }
+    </script>
+</body>
+</html>
